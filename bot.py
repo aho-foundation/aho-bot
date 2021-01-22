@@ -9,7 +9,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 @dp.message_handler()
 async def process_msg_anonymize(msg: types.Message):
-    if(msg.chat_id is not config.chat_id):
+    if(msg.chat.id is not config.chat_id):
         await bot.send_message(config.chat_id, msg.text)
 
 
