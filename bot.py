@@ -14,6 +14,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 
 class Step(StatesGroup):
+    start = State()
     started = State()
     expecting_anonymize = State()
     expecting_feedback = State()
@@ -59,7 +60,7 @@ async def process_msg_feedback(msg: types.Message, state: FSMContext):
     for id in config.admins_id:
         await bot.forward_message(id, msg.from_user.id, msg.message_id)
     await bot.send_message(msg.from_user.id, config.reply, reply_to_message_id=msg.message_id)
-    await state.finish()
+    await Step.started.set()
 
 
 @dp.callback_query_handler(Button('anochat'), state=Step.started)
@@ -83,7 +84,7 @@ async def process_msg_anonymize(msg: types.Message, state: FSMContext):
     data = await state.get_data()
     chat_id = data['chosen']
     await bot.send_message(chat_id, msg.text)
-    await state.finish()
+    await Step.started.set()
 
 
 if __name__ == '__main__':
