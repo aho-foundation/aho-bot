@@ -37,25 +37,7 @@ async def cmd_start(msg: types.Message):
     await Step.started.set()
 
 
-@dp.message_handler(lambda msg: msg.reply_to_message and msg.from_user.id in config.admins_id)
-async def process_reply_admin(msg):
-    ''' Отправка пользователю '''
-    await bot.send_message(msg.reply_to_message.forward_from.id, msg.text)
-    await bot.send_message(msg.from_user.id, config.sent)
-    await Step.finish()
-
-
-@dp.callback_query_handler(Button('feedback'), state=Step.started)
-async def process_btn_feedback(callback_query: types.CallbackQuery):
-    ''' Отправка сообщения админам '''
-    msg = callback_query.message
-    for id in config.admins_id:
-        await bot.forward_message(id, msg.from_user.id, msg.message_id)
-    await bot.send_message(msg.from_user.id, config.feedback_ok, reply_to_message_id=msg.message_id)
-    await Step.answering_feedback.set()
-
-
-@dp.message_handler(state=Step.started)
+@dp.message_handler(state=Step.answering_feedback)
 async def process_msg_feedback(msg: types.Message, state: FSMContext):
     for id in config.admins_id:
         await bot.forward_message(id, msg.from_user.id, msg.message_id)
@@ -72,7 +54,7 @@ async def process_btn_chat(callback_query: types.CallbackQuery, state: FSMContex
 
 
 @dp.callback_query_handler(Button('anoflood'), state=Step.started)
-async def process_btn_anonymize(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_btn_flood(callback_query: types.CallbackQuery, state: FSMContext):
     await state.update_data(chosen=config.flood_id)
     chat_id = callback_query.from_user.id
     await bot.send_message(chat_id, config.enter)
