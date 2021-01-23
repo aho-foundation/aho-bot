@@ -9,7 +9,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 @dp.message_handler()
 async def process_msg_anonymize(msg: types.Message):
-    if(not msg.reply_to_message):
+    if(not msg.reply_to_message and not msg.text.startswith('/start')):
         await bot.send_message(config.chat_id, msg.text)
 
 
